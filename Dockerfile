@@ -10,7 +10,7 @@ RUN apt-get update \
                         g++ libgmp-dev libmcrypt-dev libbz2-dev libpng-dev libjpeg62-turbo-dev \
                         libfreetype6-dev libfontconfig \
                         librabbitmq-dev libssl-dev gcc make autoconf libc-dev pkg-config \
-                        mysql-client libmcrypt-dev libpq-dev libmemcached-dev memcached \
+                        mysql-client libmcrypt-dev libpq-dev libmemcached-dev \
  && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install -j$(nproc) iconv pdo pgsql pdo_pgsql mysqli pdo_mysql intl bcmath gmp bz2 zip \
@@ -74,5 +74,4 @@ RUN usermod -g www-data root
 
 WORKDIR /data/shop/development
 
-CMD ["/usr/bin/memcached","-p","11211","-u","memcache","-m","64"]
 VOLUME ["/usr/local/etc/php/conf.d"]

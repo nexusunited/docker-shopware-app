@@ -10,7 +10,7 @@ RUN apt-get update \
                         g++ libgmp-dev libmcrypt-dev libbz2-dev libpng-dev libjpeg62-turbo-dev \
                         libfreetype6-dev libfontconfig \
                         librabbitmq-dev libssl-dev gcc make autoconf libc-dev pkg-config \
-                        mysql-client libmcrypt-dev libpq-dev libmemcached-dev \
+                        mysql-client libmcrypt-dev libpq-dev libmemcached-dev zsh \
  && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install -j$(nproc) iconv pdo pgsql pdo_pgsql mysqli pdo_mysql intl bcmath gmp bz2 zip \
@@ -68,6 +68,9 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/$NVM_VERSION/install.s
 
 RUN ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/node /usr/local/bin/node \
  && ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npm /usr/local/bin/npm
+
+# Install best shell and oh-my-zsh, but dont enable it on default. Otherwise Windows user look like this: 😭
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 
 RUN usermod -g www-data root
 

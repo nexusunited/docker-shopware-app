@@ -6,7 +6,7 @@ RUN a2enmod rewrite vhost_alias
 RUN apt-get update \
  && apt-get install -y vim curl wget unzip sudo \
                         libfreetype6-dev libmcrypt-dev libgmp-dev libbz2-dev libpng-dev libjpeg62-turbo-dev libxml2-dev libicu-dev \
-                        mysql-client \
+                        mysql-client zsh\
  && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install -j$(nproc) iconv pdo mysqli pdo_mysql intl bcmath gmp bz2 zip soap mcrypt \
@@ -49,6 +49,9 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
   && mv composer.phar /usr/local/bin/composer \
   && chmod +x /usr/local/bin/composer \
   && /usr/local/bin/composer global require hirak/prestissimo
+
+# Install best shell and oh-my-zsh, but dont enable it on default. Otherwise Windows user look like this: 😭
+RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh || true
 
 RUN usermod -g www-data root
 

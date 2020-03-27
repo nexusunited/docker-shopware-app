@@ -10,7 +10,7 @@ RUN apt-get update \
                         g++ libgmp-dev libmcrypt-dev libbz2-dev libpng-dev libjpeg62-turbo-dev \
                         libfreetype6-dev libfontconfig \
                         librabbitmq-dev libssl-dev gcc make autoconf libc-dev pkg-config \
-                        mysql-client libmcrypt-dev libpq-dev libmemcached-dev zsh \
+                        mysql-client libmcrypt-dev libpq-dev libmemcached-dev zsh locales\
  && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install -j$(nproc) iconv pdo pgsql pdo_pgsql mysqli pdo_mysql intl bcmath gmp bz2 zip \
@@ -74,6 +74,9 @@ RUN wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -
 
 RUN usermod -g www-data root
 
+# Set locale
+RUN sed -i 's/^# *\(de_DE.UTF-8\)/\1/' /etc/locale.gen
+RUN locale-gen
 
 WORKDIR /data/shop/development
 

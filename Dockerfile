@@ -1,28 +1,22 @@
-FROM php:7.1.19-apache-jessie
-MAINTAINER Mike Bertram <bertram@nexus-netsoft.com>
+FROM php:7.4-apache
+MAINTAINER Nexus Netsoft
 
-RUN a2enmod rewrite
+RUN a2enmod rewrite vhost_alias
+RUN echo 'memory_limit = 1024M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
 
 RUN apt-get update \
- && apt-get install -y gnupg vim git curl wget unzip sudo postgresql-common postgresql-client libpq-dev zlib1g-dev libicu-dev \
-                        g++ libgmp-dev libmcrypt-dev libbz2-dev libpng-dev libjpeg62-turbo-dev \
-                        libfreetype6-dev libfontconfig \
-                        librabbitmq-dev libssl-dev gcc make autoconf libc-dev pkg-config \
-                        mysql-client \
+ && apt-get install -y git vim curl wget unzip zip sudo default-mysql-client gnupg gettext cron libzip-dev\
+                        libfreetype6-dev libmcrypt-dev libgmp-dev libbz2-dev libpng-dev libjpeg62-turbo-dev libicu-dev libyaml-dev\
  && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install -j$(nproc) iconv pdo pgsql pdo_pgsql mysqli pdo_mysql intl bcmath gmp bz2 zip mcrypt \
+RUN docker-php-ext-install -j$(nproc) iconv pdo mysqli pdo_mysql intl bcmath gmp bz2 zip \
  && apt-get clean
 
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
- && docker-php-ext-install -j$(nproc) gd
-
+RUN docker-php-ext-configure gd && docker-php-ext-install -j$(nproc) gd
 RUN pecl install -o -f redis \
  && pecl install -o -f xdebug \
- && pecl install -o -f amqp \
  && docker-php-ext-enable redis \
  && docker-php-ext-enable xdebug \
- && docker-php-ext-enable amqp \
  && echo "" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
  && echo "xdebug.default_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
  && echo "xdebug.remote_enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
@@ -35,31 +29,31 @@ RUN pecl install -o -f redis \
  && echo "xdebug.remote_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
  && mv /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.inactive
 
-RUN echo "memory_limit = 650M" >> /usr/local/etc/php/conf.d/docker-shopware-ext.ini
 
+# Composer Phar
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
- && php composer-setup.php \
- && php -r "unlink('composer-setup.php');" \
- && mv composer.phar /usr/local/bin/composer \
- && chmod +x /usr/local/bin/composer \
- && /usr/local/bin/composer global require hirak/prestissimo
+  && php composer-setup.php \
+  && php -r "unlink('composer-setup.php');" \
+  && mv composer.phar /usr/local/bin/composer \
+  && chmod +x /usr/local/bin/composer \
+  && /usr/local/bin/composer global require hirak/prestissimo
 
-ENV NVM_DIR /usr/local/nvm
-ENV NVM_VERSION v0.33.8
-ENV NODE_VERSION 8.11.2
-
-# NVM & NPM
-RUN curl https://raw.githubusercontent.com/creationix/nvm/$NVM_VERSION/install.sh | bash \
- && . $NVM_DIR/nvm.sh \
- && bash -i -c 'nvm ls-remote' \
- && bash -i -c 'nvm install $NODE_VERSION'
-
-RUN ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/node /usr/local/bin/node \
- && ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npm /usr/local/bin/npm
+# Install VueJs Componente
+RUN curl -sL https://deb.nodesource.com/setup_13.x -o nodesource_setup.sh && bash nodesource_setup.sh && apt-get -y --force-yes install nodejs
+RUN npm install
+RUN rm -rf nodesource_setup.sh
+RUN npm install vue babel lint @vue/cli
+RUN npm install @vue/cli-service
+RUN npm install @vue/cli-service-global
+RUN npm install @vue/cli-plugin-babel
+RUN npm install @vue/cli-plugin-eslint
+RUN npm install vue-template-compiler
+RUN npm install axios
+RUN npm install vue-notifications
+RUN npm install mini-toastr
+RUN npm install lodash
+RUN npm install acorn-jsx
+RUN npm install esquery
+RUN cp -Rf /var/www/html/node_modules /root/ /var/www/
 
 RUN usermod -g www-data root
-
-
-WORKDIR /data/shop/development
-
-VOLUME ["/usr/local/etc/php/conf.d"]

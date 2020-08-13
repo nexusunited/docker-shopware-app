@@ -38,4 +38,22 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
   && chmod +x /usr/local/bin/composer \
   && /usr/local/bin/composer global require hirak/prestissimo
 
+
+
+ENV NVM_DIR /usr/local/nvm
+ENV NVM_VERSION v0.35.3
+ENV NODE_VERSION 10.22.0
+
+# NVM & NPM
+RUN curl https://raw.githubusercontent.com/creationix/nvm/$NVM_VERSION/install.sh | bash \
+ && . $NVM_DIR/nvm.sh \
+ && bash -i -c 'nvm ls-remote' \
+ && bash -i -c 'nvm install $NODE_VERSION'
+
+RUN ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/node /usr/local/bin/node \
+ && ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/npm /usr/local/bin/npm
+
 RUN usermod -g www-data root
+
+WORKDIR /data/shop/development
+

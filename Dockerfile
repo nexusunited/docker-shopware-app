@@ -1,8 +1,9 @@
 FROM nexusnetsoft/shopware-app:7.4
 MAINTAINER Nexus Netsoft
 
-RUN apt-get update \
- && apt-get install -y rsync pcov
+RUN apt-get update -y \
+ && apt-get install -y rsync && pecl install pcov
+RUN docker-php-ext-enable pcov
 
 # Install VueJs Componente
 RUN curl -sL https://deb.nodesource.com/setup_13.x -o nodesource_setup.sh && bash nodesource_setup.sh && apt-get -y --force-yes install nodejs

@@ -5,7 +5,7 @@ RUN a2enmod rewrite vhost_alias
 RUN echo 'memory_limit = 1024M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
 
 RUN apt-get update \
- && apt-get install -y git vim curl wget unzip zip sudo default-mysql-client gnupg gettext cron libzip-dev\
+ && apt-get install -y git vim curl wget python3 unzip zip sudo default-mysql-client gnupg gettext cron libzip-dev\
                         libfreetype6-dev libmcrypt-dev libgmp-dev libbz2-dev libpng-dev libjpeg62-turbo-dev libicu-dev libyaml-dev\
  && rm -rf /var/lib/apt/lists/*
 

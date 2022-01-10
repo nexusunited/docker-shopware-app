@@ -5,8 +5,8 @@ RUN a2enmod rewrite vhost_alias
 RUN echo 'memory_limit = 1024M' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
 
 RUN apt-get update \
- && apt-get install -y git vim curl wget python3 unzip zip sudo default-mysql-client gnupg gettext cron libzip-dev\
-                        libfreetype6-dev libmcrypt-dev libgmp-dev libbz2-dev libpng-dev libjpeg62-turbo-dev libicu-dev libyaml-dev\
+ && apt-get install -y git vim curl wget unzip zip sudo default-mysql-client gnupg gettext cron libzip-dev\
+                        libfreetype6-dev libmcrypt-dev libgmp-dev libbz2-dev libpng-dev libjpeg62-turbo-dev libicu-dev libyaml-dev python3\
  && rm -rf /var/lib/apt/lists/*
 
 RUN docker-php-ext-install -j$(nproc) iconv pdo mysqli pdo_mysql intl bcmath gmp bz2 zip \
@@ -39,16 +39,18 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 
 
 
-
+RUN mkdir -p /usr/local/nvm 
 
 ENV NVM_DIR /usr/local/nvm
 ENV NVM_VERSION v0.35.3
 ENV NODE_VERSION 10.22.0
 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/$NVM_VERSION/install.sh | bash
-RUN . ~/.nvm/nvm.sh && source ~/.bashrc && nvm install $NODE_VERSION  && nvm alias default $NODE_VERSION && nvm use default
+RUN . "$NVM_DIR/nvm.sh" && nvm install ${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm use v${NODE_VERSION}
+RUN . "$NVM_DIR/nvm.sh" && nvm alias default v${NODE_VERSION}
 
-# add node and npm to path so the commands are available
+# add node and npm to path so the commands are available -p /usr/local/nvm
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
@@ -58,4 +60,3 @@ RUN ln -s $NVM_DIR/versions/node/v$NODE_VERSION/bin/node /usr/local/bin/node \
 RUN usermod -g www-data root
 
 WORKDIR /data/shop/development
-
